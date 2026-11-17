@@ -1,0 +1,65 @@
+---
+import Base from '../layouts/Base.astro';
+import { projects } from '../data/site';
+---
+
+<Base
+  title="Projects"
+  description="Open-source and personal projects by Thibaud Ledent: the j8583 ISO 8583 library, an Evernote to Notion migration tool, a CV built with Typst and more."
+>
+  <header class="page-head">
+    <h1>Projects</h1>
+    <p class="page-head__lead">
+      Open-source work and personal tools. The code is on <a href="https://github.com/thibaudledent">GitHub</a>.
+    </p>
+  </header>
+
+  <ul class="rows projects">
+    {
+      projects.map((p) => (
+        <li class="row">
+          <span class="row__date">{p.language}</span>
+          <div>
+            <h2 class="row__title">
+              <a href={p.url}>{p.name}</a>
+            </h2>
+            <p class="row__detail">{p.description}</p>
+            <p class="project__links">
+              <a href={p.url}>GitHub</a>
+              {p.links?.map((l) => <a href={l.url}>{l.label}</a>)}
+            </p>
+          </div>
+          <span class="row__figure muted">{p.kind}</span>
+        </li>
+      ))
+    }
+  </ul>
+</Base>
+
+<style>
+  .projects {
+    border-top: 1px solid var(--rule);
+    padding-top: var(--s-4);
+  }
+  .projects .row {
+    padding-block: var(--s-3);
+  }
+  .projects .row__title {
+    font-size: var(--text-lg);
+  }
+  .projects .row__detail {
+    max-width: var(--measure);
+    margin-top: 0.375rem;
+    font-size: 1rem;
+    color: var(--ink);
+  }
+  .project__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1.25rem;
+    margin-top: 0.75rem;
+    font-family: var(--mono);
+    font-size: var(--text-sm);
+    letter-spacing: -0.01em;
+  }
+</style>

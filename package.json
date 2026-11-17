@@ -1,0 +1,27 @@
+{
+  "name": "ledent.dev",
+  "type": "module",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Personal website of Thibaud Ledent",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check"
+  },
+  "dependencies": {
+    "@astrojs/rss": "^4.0.19",
+    "@astrojs/sitemap": "^3.7.5",
+    "@fontsource-variable/jetbrains-mono": "^5.2.8",
+    "@fontsource/ibm-plex-sans": "^5.2.8",
+    "astro": "^7.4.12"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.12",
+    "typescript": "^6.0.3"
+  }
+}

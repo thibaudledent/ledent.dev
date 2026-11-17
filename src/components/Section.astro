@@ -1,0 +1,16 @@
+---
+// A label in the left column, content in the right. The label is the
+// section's real heading, not a decoration above one.
+interface Props {
+  label: string;
+  id?: string;
+}
+const { label, id = label.replace(/\W+/g, '-') } = Astro.props;
+---
+
+<section class="section" aria-labelledby={`${id}-title`}>
+  <h2 class="section__label" id={`${id}-title`}>{label}</h2>
+  <div class="section__body">
+    <slot />
+  </div>
+</section>

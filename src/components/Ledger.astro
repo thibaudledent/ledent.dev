@@ -1,0 +1,38 @@
+---
+// The career as a ledger: date, entry, figure. The open interval
+// ("present") is the one the cursor is on.
+import { ledger } from '../lib/cv';
+const rows = ledger();
+---
+
+<ol class="rows ledger">
+  {
+    rows.map((r) => (
+      <li class="row">
+        <span class:list={['row__date', { 'row__date--current': r.current }]}>
+          {r.dates}
+          {r.current && <span class="cursor" aria-hidden="true" />}
+        </span>
+        <div>
+          <h3 class="row__title">{r.title}</h3>
+          <p class="row__detail">{r.detail}</p>
+        </div>
+        {r.figure && <span class="row__figure">{r.figure}</span>}
+      </li>
+    ))
+  }
+</ol>
+
+<style>
+  .ledger .row {
+    grid-template-columns: 12rem minmax(0, 1fr) auto;
+  }
+  .row__date--current {
+    color: var(--ink);
+  }
+  @media (max-width: 40rem) {
+    .ledger .row {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

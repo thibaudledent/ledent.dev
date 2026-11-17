@@ -1,0 +1,60 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getArticles, isoDate } from '../../lib/writing';
+
+const articles = await getArticles();
+---
+
+<Base
+  title="Writing"
+  description="Technical notes by Thibaud Ledent on Java, Maven, shell tooling and cloud experiments."
+>
+  <header class="page-head">
+    <h1>Writing</h1>
+    <p class="page-head__lead">
+      Short technical notes: things I had to work out once and wanted to find again. Also available as an <a href="/rss.xml">RSS feed</a>.
+    </p>
+  </header>
+
+  <ul class="rows articles">
+    {
+      articles.map((a) => (
+        <li class="row">
+          <time class="row__date" datetime={isoDate(a.data.date)}>
+            {isoDate(a.data.date)}
+          </time>
+          <div>
+            <h2 class="row__title">
+              <a href={`/writing/${a.id}/`}>{a.data.title}</a>
+            </h2>
+            <p class="row__detail">{a.data.description}</p>
+          </div>
+        </li>
+      ))
+    }
+  </ul>
+</Base>
+
+<style>
+  .articles {
+    border-top: 1px solid var(--rule);
+    padding-top: var(--s-4);
+  }
+  .articles .row {
+    grid-template-columns: 9.5rem minmax(0, 1fr);
+    padding-block: var(--s-3);
+  }
+  .articles .row__title {
+    font-size: var(--text-lg);
+  }
+  .articles .row__detail {
+    max-width: var(--measure);
+    margin-top: 0.375rem;
+    font-size: 1rem;
+  }
+  @media (max-width: 40rem) {
+    .articles .row {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

@@ -1,0 +1,139 @@
+---
+import Base from '../layouts/Base.astro';
+import Section from '../components/Section.astro';
+import Ledger from '../components/Ledger.astro';
+import { cv, inline } from '../lib/cv';
+import { site, projects, extraProfiles } from '../data/site';
+import { getArticles, isoDate } from '../lib/writing';
+
+const featured = projects.filter((p) => p.featured);
+const articles = (await getArticles()).slice(0, 4);
+// Hyphenated words ("large-scale") must not break across lines in the headline.
+const taglineWords = site.tagline.split(' ');
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: site.domain,
+    url: site.url,
+    author: { '@id': `${site.url}/#person` },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    '@id': `${site.url}/#person`,
+    name: cv.name,
+    url: site.url,
+    jobTitle: cv.title.replace(' · ', ', '),
+    description: site.description,
+    email: `mailto:${cv.email}`,
+    address: { '@type': 'PostalAddress', addressLocality: 'Namur', addressCountry: 'BE' },
+    nationality: 'Belgian',
+    knowsLanguage: ['fr', 'en', 'nl'],
+    alumniOf: [
+      { '@type': 'CollegeOrUniversity', name: 'University of Liège' },
+      { '@type': 'CollegeOrUniversity', name: 'HEC Liège' },
+    ],
+    knowsAbout: cv.skills.flatMap((s) => s.items.split('·').map((x) => x.trim())),
+    sameAs: [...cv.links.map((l) => l.url), ...extraProfiles.map((p) => p.url)],
+  },
+];
+---
+
+<Base jsonLd={jsonLd}>
+  <section class="hero">
+    <h1>
+      <span class="hero__name">{cv.name}.</span>
+      <span class="hero__tagline">
+        {taglineWords.map((w, i) => {
+          const gap = i < taglineWords.length - 1 ? ' ' : '';
+          return w.includes('-') ? <><span class="nowrap">{w}</span>{gap}</> : w + gap;
+        })}<span class="cursor" aria-hidden="true"></span>
+      </span>
+    </h1>
+    <p class="hero__lead" set:html={inline(cv.profile)} />
+  </section>
+
+  <Section label="experience">
+    <Ledger />
+    <p class="section__more">
+      <a href="/experience/">Read the full experience</a>
+      <span class="muted"> or </span>
+      <a href={site.cvPdf}>download the CV (PDF)</a>
+    </p>
+  </Section>
+
+  <Section label="projects">
+    <ul class="rows">
+      {
+        featured.map((p) => (
+          <li class="row row--plain">
+            <div>
+              <h3 class="row__title">
+                <a href={p.url}>{p.name}</a>
+              </h3>
+              <p class="row__detail">{p.description}</p>
+            </div>
+            <span class="row__figure muted">{p.language}</span>
+          </li>
+        ))
+      }
+    </ul>
+    <p class="section__more"><a href="/projects/">See all projects</a></p>
+  </Section>
+
+  <Section label="writing">
+    <ul class="rows">
+      {
+        articles.map((a) => (
+          <li class="row row--dated">
+            <time class="row__date" datetime={isoDate(a.data.date)}>
+              {isoDate(a.data.date)}
+            </time>
+            <h3 class="row__title">
+              <a href={`/writing/${a.id}/`}>{a.data.title}</a>
+            </h3>
+          </li>
+        ))
+      }
+    </ul>
+    <p class="section__more"><a href="/writing/">Read all articles</a></p>
+  </Section>
+</Base>
+
+<style>
+  .hero {
+    padding-block: clamp(3rem, 9vw, 7rem) clamp(3rem, 7vw, 5.5rem);
+  }
+  .hero h1 {
+    font-size: var(--text-hero);
+    line-height: 1.08;
+    max-width: 30ch;
+    text-wrap: balance;
+  }
+  .hero__name {
+    display: block;
+  }
+  .hero__tagline {
+    color: var(--muted);
+  }
+  .hero__lead {
+    margin-top: var(--s-4);
+    max-width: 39rem;
+    font-size: var(--text-lg);
+    line-height: 1.55;
+  }
+  .row--plain {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .row--dated {
+    grid-template-columns: 7.5rem minmax(0, 1fr);
+  }
+  @media (max-width: 40rem) {
+    .row--plain,
+    .row--dated {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

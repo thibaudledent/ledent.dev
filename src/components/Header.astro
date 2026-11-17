@@ -1,0 +1,84 @@
+---
+import Wordmark from './Wordmark.astro';
+import { nav } from '../data/site';
+
+const path = Astro.url.pathname;
+const isCurrent = (href: string) => href !== '/' && !href.startsWith('#') && path.startsWith(href);
+---
+
+<header class="site-header wrap">
+  <a class="site-header__logo" href="/" aria-label="ledent.dev, home">
+    <Wordmark blink />
+  </a>
+  <nav aria-label="Main">
+    <ul>
+      {
+        nav.map((item) => (
+          <li>
+            <a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>
+              {item.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </nav>
+</header>
+
+<style>
+  .site-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--s-2) var(--s-4);
+    padding-block: var(--s-4);
+  }
+  .site-header__logo {
+    font-size: 1.25rem;
+    text-decoration: none;
+    color: var(--ink);
+    padding-block: 0.25rem;
+  }
+  ul {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1.25rem;
+  }
+  nav a {
+    display: inline-flex;
+    align-items: center;
+    font-family: var(--mono);
+    font-size: var(--text-sm);
+    letter-spacing: -0.01em;
+    color: var(--muted);
+    text-decoration: none;
+    padding-block: 0.375rem;
+  }
+  /* The cursor sits after the page you are on, and follows the pointer. */
+  nav a::after {
+    content: '';
+    width: 0.345em;
+    height: 0.83em;
+    margin-left: 0.276em;
+    background: var(--accent);
+    opacity: 0;
+  }
+  nav a:hover,
+  nav a[aria-current='page'] {
+    color: var(--ink);
+  }
+  nav a:hover::after,
+  nav a:focus-visible::after,
+  nav a[aria-current='page']::after {
+    opacity: 1;
+  }
+  nav ul:hover a[aria-current='page']:not(:hover)::after {
+    opacity: 0;
+  }
+  /* The trailing cursor slot would otherwise push the menu off the edge. */
+  nav {
+    margin-right: -0.5rem;
+  }
+</style>

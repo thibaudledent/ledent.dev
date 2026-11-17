@@ -1,0 +1,158 @@
+---
+import { render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import { getArticles, isoDate, longDate } from '../../lib/writing';
+import { site } from '../../data/site';
+
+export async function getStaticPaths() {
+  const articles = await getArticles();
+  return articles.map((article, i) => ({
+    params: { slug: article.id },
+    props: { article, newer: articles[i - 1], older: articles[i + 1] },
+  }));
+}
+
+const { article, newer, older } = Astro.props;
+const { Content } = await render(article);
+const { title, description, date, tags } = article.data;
+const minutes = Math.max(1, Math.round((article.body ?? '').split(/\s+/).length / 220));
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BlogPosting',
+  headline: title,
+  description,
+  datePublished: date.toISOString(),
+  url: new URL(Astro.url.pathname, Astro.site).href,
+  keywords: tags.join(', '),
+  author: { '@type': 'Person', '@id': `${site.url}/#person`, name: site.name, url: site.url },
+};
+---
+
+<Base title={title} description={description} type="article" published={date} jsonLd={jsonLd}>
+  <article class="article">
+    <p class="article__meta">
+      <a href="/writing/">writing</a>
+      <time datetime={isoDate(date)}>{longDate(date)}</time>
+      <span>{minutes} min read</span>
+    </p>
+    <div class="article__body">
+      <h1>{title}</h1>
+      <div class="prose">
+        <Content />
+      </div>
+    </div>
+  </article>
+
+  <nav class="pager" aria-label="More articles">
+    {
+      older ? (
+        <a href={`/writing/${older.id}/`}>
+          <span class="pager__dir">older</span>
+          <span class="pager__title">{older.data.title}</span>
+        </a>
+      ) : (
+        <span />
+      )
+    }
+    {
+      newer && (
+        <a class="pager__next" href={`/writing/${newer.id}/`}>
+          <span class="pager__dir">newer</span>
+          <span class="pager__title">{newer.data.title}</span>
+        </a>
+      )
+    }
+  </nav>
+</Base>
+
+<style>
+  /* Same grid as every section: meta in the label column, text beside it. */
+  .article {
+    display: grid;
+    grid-template-columns: var(--label) minmax(0, 1fr);
+    column-gap: var(--s-6);
+    padding-top: var(--s-8);
+  }
+  .article h1 {
+    font-size: var(--text-2xl);
+    max-width: 24ch;
+    margin-bottom: var(--s-6);
+  }
+  .article__meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding-top: 0.5rem;
+    font-family: var(--mono);
+    font-size: var(--text-sm);
+    letter-spacing: -0.01em;
+    color: var(--muted);
+  }
+  .article__meta a {
+    align-self: flex-start;
+  }
+  @media (max-width: 52rem) {
+    .article {
+      grid-template-columns: minmax(0, 1fr);
+      row-gap: var(--s-3);
+      padding-top: var(--s-6);
+    }
+    .article__meta {
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 0.25rem 1rem;
+      padding-top: 0;
+    }
+    .article h1 {
+      margin-bottom: var(--s-4);
+    }
+  }
+  .pager {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--s-4);
+    margin-top: var(--s-8);
+    padding-top: var(--s-3);
+    border-top: 1px solid var(--rule);
+  }
+  .pager a {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    text-decoration: none;
+  }
+  .pager__next {
+    text-align: right;
+    grid-column: 2;
+  }
+  .pager__dir {
+    font-family: var(--mono);
+    font-size: var(--text-sm);
+    color: var(--muted);
+  }
+  .pager__title {
+    font-family: var(--mono);
+    font-weight: 500;
+    font-size: 1rem;
+    letter-spacing: -0.02em;
+    line-height: 1.4;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.22em;
+    text-decoration-color: transparent;
+  }
+  .pager a:hover .pager__title {
+    text-decoration-color: var(--accent);
+    text-decoration-thickness: 2px;
+  }
+  @media (max-width: 40rem) {
+    .pager {
+      grid-template-columns: 1fr;
+    }
+    .pager__next {
+      grid-column: 1;
+      text-align: left;
+    }
+  }
+</style>

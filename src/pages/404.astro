@@ -1,0 +1,33 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base title="Page not found" noindex>
+  <section class="lost">
+    <p class="lost__code">404</p>
+    <h1>Nothing lives at this address.</h1>
+    <p class="lost__help">
+      The page may have moved when the site was rebuilt. Start again from the <a href="/">home page</a> or look through the <a href="/writing/">articles</a>.
+    </p>
+  </section>
+</Base>
+
+<style>
+  .lost {
+    padding-block: clamp(3rem, 10vw, 8rem);
+  }
+  .lost__code {
+    font-family: var(--mono);
+    font-size: var(--text-sm);
+    color: var(--muted);
+    margin-bottom: var(--s-2);
+  }
+  .lost h1 {
+    font-size: var(--text-2xl);
+  }
+  .lost__help {
+    margin-top: var(--s-3);
+    max-width: var(--measure);
+    color: var(--muted);
+  }
+</style>

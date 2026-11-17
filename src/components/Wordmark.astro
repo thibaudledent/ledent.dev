@@ -1,0 +1,44 @@
+---
+// The logo: the name and its cursor. Lowercase, JetBrains Mono 500,
+// accent on the cursor only. `blink` is reserved for the site header.
+interface Props {
+  blink?: boolean;
+}
+const { blink = false } = Astro.props;
+---
+
+<span class:list={['wordmark', { 'wordmark--blink': blink }]}>
+  <span class="wordmark__name">ledent.dev</span><span class="cursor" aria-hidden="true"></span>
+</span>
+
+<style>
+  .wordmark {
+    display: inline-flex;
+    align-items: center;
+    font-family: var(--mono);
+    font-weight: 500;
+    letter-spacing: var(--tracking-mono);
+    line-height: 1;
+    white-space: nowrap;
+  }
+  .wordmark .cursor {
+    vertical-align: baseline;
+  }
+  /* Four blinks on arrival, then solid. It blinks again while hovered. */
+  .wordmark--blink .cursor {
+    animation: blink 1.1s steps(1, end) 4;
+  }
+  :global(a:hover) > .wordmark--blink .cursor {
+    animation: blink-again 1.1s steps(1, end) infinite;
+  }
+  @keyframes blink {
+    50% {
+      opacity: 0;
+    }
+  }
+  @keyframes blink-again {
+    50% {
+      opacity: 0;
+    }
+  }
+</style>
