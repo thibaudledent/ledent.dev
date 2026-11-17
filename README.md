@@ -75,34 +75,49 @@ Tokens (colours, type scale, spacing) are at the top of `src/styles/global.css`.
 
 ## Deployment using GitHub Pages
 
-### 1. Turn on Pages
+The site is built and published by the **Build and deploy** workflow (`.github/workflows/deploy.yml`) on every push to `main`. It can also be started by hand from the **Actions** tab. The domain `ledent.dev` is registered at Cloudflare, which only serves DNS: GitHub hosts the site and issues the HTTPS certificate.
 
-In the repository: **Settings > Pages > Build and deployment > Source: GitHub Actions**.
+Do the first setup once, in this order.
 
-### 2. Add the custom domain
+### 1. Turn on GitHub Pages
 
-In **Settings > Pages > Custom domain**, enter `ledent.dev` and save. With the "GitHub Actions" source no `CNAME` file is needed in the repository.
+On GitHub, in the repository: **Settings > Pages > Build and deployment > Source**, choose **GitHub Actions**.
 
-Optionally verify the domain for your account first (**Account settings > Pages > Add a domain**), which stops anyone else from claiming it on GitHub.
+### 2. Verify the domain (optional, recommended)
 
-### 3. DNS records at Cloudflare
+This stops any other GitHub account from publishing a site on `ledent.dev`.
 
-| Type | Name | Target | Proxy |
+1. On GitHub: **your profile picture > Settings > Pages > Add a domain**, enter `ledent.dev`. GitHub shows a TXT record (a name like `_github-pages-challenge-thibaudledent` and a value).
+2. On Cloudflare: **ledent.dev > DNS > Records > Add record**, type **TXT**, paste that name and value, save.
+3. Back on GitHub, click **Verify**. It can take a few minutes for the record to be seen.
+
+### 3. Add the DNS records at Cloudflare
+
+On Cloudflare: **ledent.dev > DNS > Records > Add record**, twice:
+
+| Type | Name | Target | Proxy status |
 | --- | --- | --- | --- |
-| CNAME | `ledent.dev` (`@`) | `thibaudledent.github.io` | DNS only |
-| CNAME | `www` | `thibaudledent.github.io` | DNS only |
+| CNAME | `@` | `thibaudledent.github.io` | DNS only (grey cloud) |
+| CNAME | `www` | `thibaudledent.github.io` | DNS only (grey cloud) |
 
-- Cloudflare flattens the CNAME at the apex, so no A records are needed.
-- Keep the proxy off (grey cloud) at least until GitHub has issued its certificate and **Enforce HTTPS** can be ticked in the Pages settings. `.dev` is HTTPS-only in every browser, so the site is unreachable until that certificate exists.
-- If you later turn the Cloudflare proxy on, set **SSL/TLS > Overview** to **Full (strict)**.
-- GitHub redirects `www.ledent.dev` to `ledent.dev` automatically once both records exist.
+- Delete any other `A`, `AAAA` or `CNAME` record on `@` or `www` that Cloudflare may have added (a parking page, for example).
+- Cloudflare flattens the CNAME at the apex, so no `A` records are needed.
+- The proxy must be **off** (click the orange cloud until it turns grey). With the proxy on, GitHub cannot issue its certificate, and `.dev` is HTTPS-only in every browser, so the site would be unreachable.
 
-### 4. Allow deployments
+### 4. Set the custom domain on GitHub
 
-```sh
-gh variable set DEPLOY_ENABLED --repo thibaudledent/ledent.dev --body true
-gh workflow run "Build and deploy" --repo thibaudledent/ledent.dev
-```
+In the repository: **Settings > Pages > Custom domain**, enter `ledent.dev`, click **Save**. Wait for the DNS check to show a green tick. With the "GitHub Actions" source no `CNAME` file is needed in the repository.
 
-From then on every push to `main` deploys.
+### 5. Deploy
 
+Merge to `main`, or run it by hand: **Actions > Build and deploy > Run workflow**. Once the run is green, the site is published.
+
+### 6. Turn on HTTPS
+
+GitHub issues the certificate for `ledent.dev` within about 15 minutes to an hour after step 4. When it is ready, tick **Enforce HTTPS** in **Settings > Pages**. The site is then live at <https://ledent.dev>, and `www.ledent.dev` redirects to it.
+
+### Troubleshooting
+
+- **DNS check fails or stays pending on GitHub**: check that the records in step 3 are grey-cloud, then click **Remove** and re-save the custom domain to start the check again.
+- **"Enforce HTTPS" is greyed out**: the certificate is not issued yet. Wait, and make sure the proxy is still off.
+- **Turning the Cloudflare proxy on later** (for caching or analytics): only after **Enforce HTTPS** is ticked, and set **Cloudflare > SSL/TLS > Overview** to **Full (strict)**, otherwise visitors get a redirect loop.
