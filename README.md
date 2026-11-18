@@ -17,7 +17,8 @@ Requires Node 22 or later (the version CI uses is in `.nvmrc`).
 | To change | Edit |
 | --- | --- |
 | Experience, skills, education, profile text, email | The [CV repository](https://github.com/thibaudledent/CV). Never edit `src/data/cv.json` by hand: it is overwritten on every CV release. |
-| Headline, project list, ledger figures, extra profiles | `src/data/site.ts` |
+| Headline, ledger figures, extra profiles | `src/data/site.ts` |
+| Projects | Nothing: every public GitHub repository is fetched at build time (`src/lib/github.ts`), most starred first. New ones appear on the next build. |
 | Articles | `src/content/writing/*.md` |
 | The CV PDF | `public/cv/Thibaud-Ledent-CV.pdf`, also published by the CV repository |
 
@@ -49,7 +50,7 @@ src/
   content/       writing/*.md
   data/          cv.json (generated), site.ts (hand-written)
   layouts/       Base.astro: <head>, SEO tags, fonts, theme
-  lib/           cv.ts and writing.ts: data helpers
+  lib/           cv.ts, writing.ts and github.ts: data helpers
   pages/         index, experience, projects, writing, 404, rss.xml
   styles/        global.css: tokens and shared styles
 public/          favicon, social image, CV PDF, robots.txt
