@@ -10,7 +10,7 @@ npm run preview   # serve dist/ locally
 npm run check     # type-check .astro and .ts files
 ```
 
-Requires Node 22 or later.
+Requires Node 22 or later (the version CI uses is in `.nvmrc`).
 
 ## Where the content lives
 
@@ -75,7 +75,7 @@ Tokens (colours, type scale, spacing) are at the top of `src/styles/global.css`.
 
 ## Deployment using GitHub Pages
 
-The site is built and published by the **Build and deploy** workflow (`.github/workflows/deploy.yml`) on every push to `main`. It can also be started by hand from the **Actions** tab. The domain `ledent.dev` is registered at Cloudflare, which only serves DNS: GitHub hosts the site and issues the HTTPS certificate.
+The **Build and deploy** workflow (`.github/workflows/deploy.yml`) type-checks and builds the site on every push and pull request. It only publishes from `main`, and only once the repository variable `DEPLOY_ENABLED` is `true` (step 5), so nothing goes out before the domain is ready. The domain `ledent.dev` is registered at Cloudflare, which only serves DNS: GitHub hosts the site and issues the HTTPS certificate.
 
 Do the first setup once, in this order.
 
@@ -108,9 +108,19 @@ On Cloudflare: **ledent.dev > DNS > Records > Add record**, twice:
 
 In the repository: **Settings > Pages > Custom domain**, enter `ledent.dev`, click **Save**. Wait for the DNS check to show a green tick. With the "GitHub Actions" source no `CNAME` file is needed in the repository.
 
-### 5. Deploy
+### 5. Allow deployments and deploy
 
-Merge to `main`, or run it by hand: **Actions > Build and deploy > Run workflow**. Once the run is green, the site is published.
+1. In the repository: **Settings > Secrets and variables > Actions > Variables > New repository variable**. Name `DEPLOY_ENABLED`, value `true`.
+2. Start the first deployment: **Actions > Build and deploy > Run workflow** (branch `main`). Once both the `build` and `deploy` jobs are green, the site is published.
+
+From then on every push to `main` deploys. To pause deployments, set `DEPLOY_ENABLED` to anything other than `true`.
+
+The same with the GitHub CLI:
+
+```sh
+gh variable set DEPLOY_ENABLED --repo thibaudledent/ledent.dev --body true
+gh workflow run "Build and deploy" --repo thibaudledent/ledent.dev
+```
 
 ### 6. Turn on HTTPS
 
@@ -118,6 +128,7 @@ GitHub issues the certificate for `ledent.dev` within about 15 minutes to an hou
 
 ### Troubleshooting
 
+- **The `deploy` job is skipped**: `DEPLOY_ENABLED` is not set to `true`, or the run is not on `main`.
 - **DNS check fails or stays pending on GitHub**: check that the records in step 3 are grey-cloud, then click **Remove** and re-save the custom domain to start the check again.
 - **"Enforce HTTPS" is greyed out**: the certificate is not issued yet. Wait, and make sure the proxy is still off.
 - **Turning the Cloudflare proxy on later** (for caching or analytics): only after **Enforce HTTPS** is ticked, and set **Cloudflare > SSL/TLS > Overview** to **Full (strict)**, otherwise visitors get a redirect loop.
