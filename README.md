@@ -74,62 +74,21 @@ Tokens (colours, type scale, spacing) are at the top of `src/styles/global.css`.
 - `public/favicon.svg`, `favicon.ico`, `apple-touch-icon.png`: the reduced mark, an accent cursor on an ink square, with the pixel sizes of the logo sheet.
 - `public/og.png`: the social sharing image. Its source is `brand/og.html`.
 
-## Deployment using GitHub Pages
+## Deployment
 
-The **Build and deploy** workflow (`.github/workflows/deploy.yml`) type-checks and builds the site on every push and pull request. It only publishes from `main`, and only once the repository variable `DEPLOY_ENABLED` is `true` (step 5), so nothing goes out before the domain is ready. The domain `ledent.dev` is registered at Cloudflare, which only serves DNS: GitHub hosts the site and issues the HTTPS certificate.
+Every push to `main` publishes the site to <https://ledent.dev>. The **Build and deploy** workflow (`.github/workflows/deploy.yml`) type-checks and builds the site on every push and pull request, and deploys to GitHub Pages only from `main`. To redeploy without a change, for example to refresh the project list: **Actions > Build and deploy > Run workflow**.
 
-Do the first setup once, in this order.
+### How it is set up
 
-### 1. Turn on GitHub Pages
+This is already done; it is here in case it ever has to be redone.
 
-On GitHub, in the repository: **Settings > Pages > Build and deployment > Source**, choose **GitHub Actions**.
+- **GitHub**: in the repository's **Settings > Pages**, the source is **GitHub Actions**, the custom domain is `ledent.dev` and **Enforce HTTPS** is ticked. Optionally, the domain is also verified in the account's **Settings > Pages**, which stops other GitHub accounts from using it.
+- **Cloudflare** only serves DNS. In **ledent.dev > DNS > Records**:
 
-### 2. Verify the domain (optional, recommended)
+  | Type | Name | Target | Proxy status |
+  | --- | --- | --- | --- |
+  | CNAME | `@` | `thibaudledent.github.io` | DNS only (grey cloud) |
+  | CNAME | `www` | `thibaudledent.github.io` | DNS only (grey cloud) |
+  | TXT | `_github-pages-challenge-thibaudledent` | value given by GitHub (only if the domain is verified) | |
 
-This stops any other GitHub account from publishing a site on `ledent.dev`.
-
-1. On GitHub: **your profile picture > Settings > Pages > Add a domain**, enter `ledent.dev`. GitHub shows a TXT record (a name like `_github-pages-challenge-thibaudledent` and a value).
-2. On Cloudflare: **ledent.dev > DNS > Records > Add record**, type **TXT**, paste that name and value, save.
-3. Back on GitHub, click **Verify**. It can take a few minutes for the record to be seen.
-
-### 3. Add the DNS records at Cloudflare
-
-On Cloudflare: **ledent.dev > DNS > Records > Add record**, twice:
-
-| Type | Name | Target | Proxy status |
-| --- | --- | --- | --- |
-| CNAME | `@` | `thibaudledent.github.io` | DNS only (grey cloud) |
-| CNAME | `www` | `thibaudledent.github.io` | DNS only (grey cloud) |
-
-- Delete any other `A`, `AAAA` or `CNAME` record on `@` or `www` that Cloudflare may have added (a parking page, for example).
-- Cloudflare flattens the CNAME at the apex, so no `A` records are needed.
-- The proxy must be **off** (click the orange cloud until it turns grey). With the proxy on, GitHub cannot issue its certificate, and `.dev` is HTTPS-only in every browser, so the site would be unreachable.
-
-### 4. Set the custom domain on GitHub
-
-In the repository: **Settings > Pages > Custom domain**, enter `ledent.dev`, click **Save**. Wait for the DNS check to show a green tick. With the "GitHub Actions" source no `CNAME` file is needed in the repository.
-
-### 5. Allow deployments and deploy
-
-1. In the repository: **Settings > Secrets and variables > Actions > Variables > New repository variable**. Name `DEPLOY_ENABLED`, value `true`.
-2. Start the first deployment: **Actions > Build and deploy > Run workflow** (branch `main`). Once both the `build` and `deploy` jobs are green, the site is published.
-
-From then on every push to `main` deploys. To pause deployments, set `DEPLOY_ENABLED` to anything other than `true`.
-
-The same with the GitHub CLI:
-
-```sh
-gh variable set DEPLOY_ENABLED --repo thibaudledent/ledent.dev --body true
-gh workflow run "Build and deploy" --repo thibaudledent/ledent.dev
-```
-
-### 6. Turn on HTTPS
-
-GitHub issues the certificate for `ledent.dev` within about 15 minutes to an hour after step 4. When it is ready, tick **Enforce HTTPS** in **Settings > Pages**. The site is then live at <https://ledent.dev>, and `www.ledent.dev` redirects to it.
-
-### Troubleshooting
-
-- **The `deploy` job is skipped**: `DEPLOY_ENABLED` is not set to `true`, or the run is not on `main`.
-- **DNS check fails or stays pending on GitHub**: check that the records in step 3 are grey-cloud, then click **Remove** and re-save the custom domain to start the check again.
-- **"Enforce HTTPS" is greyed out**: the certificate is not issued yet. Wait, and make sure the proxy is still off.
-- **Turning the Cloudflare proxy on later** (for caching or analytics): only after **Enforce HTTPS** is ticked, and set **Cloudflare > SSL/TLS > Overview** to **Full (strict)**, otherwise visitors get a redirect loop.
+  GitHub redirects `www.ledent.dev` to `ledent.dev`. If you ever turn the Cloudflare proxy on (orange cloud), set **SSL/TLS > Overview** to **Full (strict)**, or visitors get a redirect loop.
