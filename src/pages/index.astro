@@ -3,10 +3,11 @@ import Base from '../layouts/Base.astro';
 import Section from '../components/Section.astro';
 import Ledger from '../components/Ledger.astro';
 import { cv, inline } from '../lib/cv';
-import { site, projects, extraProfiles } from '../data/site';
+import { site, extraProfiles } from '../data/site';
+import { getRepos } from '../lib/github';
 import { getArticles, isoDate } from '../lib/writing';
 
-const featured = projects.filter((p) => p.featured);
+const featured = (await getRepos()).slice(0, 3);
 const articles = (await getArticles()).slice(0, 4);
 // Hyphenated words ("large-scale") must not break across lines in the headline.
 const taglineWords = site.tagline.split(' ');
@@ -73,9 +74,9 @@ const jsonLd = [
               <h3 class="row__title">
                 <a href={p.url}>{p.name}</a>
               </h3>
-              <p class="row__detail">{p.description}</p>
+              {p.description && <p class="row__detail">{p.description}</p>}
             </div>
-            <span class="row__figure muted">{p.language}</span>
+            <span class="row__figure muted">{p.language ?? ''}</span>
           </li>
         ))
       }
