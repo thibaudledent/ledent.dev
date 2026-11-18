@@ -89,6 +89,5 @@ This is already done; it is here in case it ever has to be redone.
   | --- | --- | --- | --- |
   | CNAME | `@` | `thibaudledent.github.io` | DNS only (grey cloud) |
   | CNAME | `www` | `thibaudledent.github.io` | DNS only (grey cloud) |
-  | TXT | `_github-pages-challenge-thibaudledent` | value given by GitHub (only if the domain is verified) | |
 
   GitHub redirects `www.ledent.dev` to `ledent.dev`. If you ever turn the Cloudflare proxy on (orange cloud), set **SSL/TLS > Overview** to **Full (strict)**, or visitors get a redirect loop.
