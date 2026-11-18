@@ -18,7 +18,7 @@ Requires Node 22 or later.
 | --- | --- |
 | Experience, skills, education, profile text, email | The [CV repository](https://github.com/thibaudledent/CV). Never edit `src/data/cv.json` by hand: it is overwritten on every CV release. |
 | Headline, ledger figures, extra profiles | `src/data/site.ts` |
-| Projects | Nothing: every public GitHub repository is fetched at build time (`src/lib/github.ts`), most starred first. The site is rebuilt every week to pick up new ones. |
+| Projects | Nothing: every public GitHub repository is fetched at build time (`src/lib/github.ts`), most starred first. New ones appear on the next build. |
 | Articles | `src/content/writing/*.md` |
 | The CV PDF | `public/cv/Thibaud-Ledent-CV.pdf`, also published by the CV repository |
 
