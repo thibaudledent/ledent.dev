@@ -10,7 +10,7 @@ npm run preview   # serve dist/ locally
 npm run check     # type-check .astro and .ts files
 ```
 
-Requires Node 22 or later.
+Requires Node 22 or later (the version CI uses is in `.nvmrc`).
 
 ## Where the content lives
 
@@ -74,36 +74,21 @@ Tokens (colours, type scale, spacing) are at the top of `src/styles/global.css`.
 - `public/favicon.svg`, `favicon.ico`, `apple-touch-icon.png`: the reduced mark, an accent cursor on an ink square, with the pixel sizes of the logo sheet.
 - `public/og.png`: the social sharing image. Its source is `brand/og.html`.
 
-## Deployment using GitHub Pages
+## Deployment
 
-### 1. Turn on Pages
+Every push to `main` publishes the site to <https://ledent.dev>. The **Build and deploy** workflow (`.github/workflows/deploy.yml`) type-checks and builds the site on every push and pull request, and deploys to GitHub Pages only from `main`. To redeploy without a change, for example to refresh the project list: **Actions > Build and deploy > Run workflow**.
 
-In the repository: **Settings > Pages > Build and deployment > Source: GitHub Actions**.
+### How it is set up
 
-### 2. Add the custom domain
+This is already done; it is here in case it ever has to be redone.
 
-In **Settings > Pages > Custom domain**, enter `ledent.dev` and save. With the "GitHub Actions" source no `CNAME` file is needed in the repository.
+- **GitHub**: in the repository's **Settings > Pages**, the source is **GitHub Actions**, the custom domain is `ledent.dev` and **Enforce HTTPS** is ticked. Optionally, the domain is also verified in the account's **Settings > Pages**, which stops other GitHub accounts from using it.
+- **Cloudflare** only serves DNS. In **ledent.dev > DNS > Records**:
 
-Optionally verify the domain for your account first (**Account settings > Pages > Add a domain**), which stops anyone else from claiming it on GitHub.
+  | Type | Name | Target | Proxy status |
+  | --- | --- | --- | --- |
+  | CNAME | `@` | `thibaudledent.github.io` | DNS only (grey cloud) |
+  | CNAME | `www` | `thibaudledent.github.io` | DNS only (grey cloud) |
+  | TXT | `_github-pages-challenge-thibaudledent` | value given by GitHub (only if the domain is verified) | |
 
-### 3. DNS records at Cloudflare
-
-| Type | Name | Target | Proxy |
-| --- | --- | --- | --- |
-| CNAME | `ledent.dev` (`@`) | `thibaudledent.github.io` | DNS only |
-| CNAME | `www` | `thibaudledent.github.io` | DNS only |
-
-- Cloudflare flattens the CNAME at the apex, so no A records are needed.
-- Keep the proxy off (grey cloud) at least until GitHub has issued its certificate and **Enforce HTTPS** can be ticked in the Pages settings. `.dev` is HTTPS-only in every browser, so the site is unreachable until that certificate exists.
-- If you later turn the Cloudflare proxy on, set **SSL/TLS > Overview** to **Full (strict)**.
-- GitHub redirects `www.ledent.dev` to `ledent.dev` automatically once both records exist.
-
-### 4. Allow deployments
-
-```sh
-gh variable set DEPLOY_ENABLED --repo thibaudledent/ledent.dev --body true
-gh workflow run "Build and deploy" --repo thibaudledent/ledent.dev
-```
-
-From then on every push to `main` deploys.
-
+  GitHub redirects `www.ledent.dev` to `ledent.dev`. If you ever turn the Cloudflare proxy on (orange cloud), set **SSL/TLS > Overview** to **Full (strict)**, or visitors get a redirect loop.

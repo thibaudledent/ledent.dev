@@ -1,9 +1,7 @@
 name: Build and deploy
 
 # Every push and pull request is built and type-checked.
-# Nothing is published until the repository variable DEPLOY_ENABLED is set
-# to "true" (Settings > Secrets and variables > Actions > Variables).
-# See docs/DEPLOYMENT.md.
+# Pushes to main are also published to GitHub Pages (https://ledent.dev).
 
 on:
   push:
@@ -38,7 +36,7 @@ jobs:
 
   deploy:
     needs: build
-    if: github.ref == 'refs/heads/main' && vars.DEPLOY_ENABLED == 'true'
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
       pages: write
