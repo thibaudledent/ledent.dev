@@ -32,7 +32,7 @@ export const extraProfiles = [
 // matched on the start of the project or mission name in the CV.
 // Every figure is taken from the CV text. Entries without a match show none.
 export const figures: { match: string; figure: string }[] = [
-  { match: 'CBAM', figure: '27 member states' },
+  { match: 'CBAM', figure: '60+ person programme' },
   { match: 'Acquirer Hub', figure: '0 → 7M+ transactions/day' },
   { match: 'Tokenization Service', figure: '2B+ tokens migrated' },
 ];
