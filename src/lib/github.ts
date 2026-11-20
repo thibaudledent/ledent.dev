@@ -1,4 +1,4 @@
-// All public repositories of the GitHub account, fetched at build time.
+// All public, non-archived repositories of the GitHub account, fetched at build time.
 // Sorted by stars, then by most recent push.
 
 const USER = 'thibaudledent';
@@ -40,7 +40,7 @@ async function fetchRepos(): Promise<Repo[]> {
   }
 
   return raw
-    .filter((r) => !r.private)
+    .filter((r) => !r.private && !r.archived)
     .map((r) => ({
       name: r.name,
       description: r.description,
